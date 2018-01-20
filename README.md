@@ -1,27 +1,27 @@
-# ts-node: issue listening to `SIGINT`
+# ts-node: issue listening to `SIGINT` using child processes 
 
-All versions of `ts-node` (3.3.0 at the time of this writing) doesn't have the
-expected behaviour when gracefully shutting down a Node.js application.
+Whilst issue [457](https://github.com/TypeStrong/ts-node/issues/457) has been fixed on version `4.1.x` of `ts-node`, when using child processes, `ts-node` is still miss-behaving.
+
+I'm using the `cluster` module, and listening for the `SIGINT` signal on the master and child processes.
 
 ## `ts-node` behaviour:
 
-Process is dettached from terminal as soon as `SIGINT` is received.
+SIGINT can be catched only for the master process.
 
 ```
-./node_modules/.bin/ts-node index.ts
-^CGraceful shutdown started...
-
-[21:22:41] endel:~/Projects/ts-node-graceful-shutdown-issue [master #]
-$ Done, let's finish!
+$ ./node_modules/.bin/ts-node index.ts
+^CShutting down MASTER...
+MASTER has been shut down.
 ```
 
 ## `node` behaviour:
 
-Process is dettached from terminal only after `process.exit()` is called.
+SIGINT can be catched for master and child process.
 
 ```
 $ node index.js
-^CGraceful shutdown started...
-Done, let's finish!
-[21:23:34] endel:~/Projects/ts-node-graceful-shutdown-issue [master #]
+^CShutting down CHILD...
+Shutting down MASTER...
+CHILD has been shut down.
+MASTER has been shut down.
 ```
